@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 
 namespace Project.Models
 {
@@ -7,18 +8,21 @@ namespace Project.Models
         [Key]
         public int SerialNo { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Vehicle Number is required.")]
+        [DisplayName("Vehicle Number")]
         public string? VehicleNo { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please Select the unit ")]
         public string Unit { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please Select the Quantity ")]
         public int Quantity { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please Select the inward Type ")]
+        [DisplayName("Inward Number")]
         public string Type { get; set; }
-        [Required]
+
+        [Required(ErrorMessage = "Add Description of the Material ")]
         public string? Description { get; set; }
       
         public DateTime ArrivalTime { get; set; }
@@ -26,19 +30,25 @@ namespace Project.Models
         [Required]
         public bool IsCustomsApproved { get; set; }
 
-        [Required]
+        [Required(ErrorMessage = "Please provide the Supplier Name ")]
+        [DisplayName("Supplier Name")]
         public string? SupplierName { get; set; }
 
-        [Required]
+
+        [Required(ErrorMessage = "Please provide the Supplier Location ")]
+        [DisplayName("Supplier Location")]
         public string? SupplierLocation { get; set; }
 
         public string? Remarks { get; set; }
 
 
-        [Required]
+
+        [Required(ErrorMessage = "Please enter the Amount ")]
         public int Amount { get; set; }
 
-        [Required]
+
+        [Required(ErrorMessage = "Please enter the Invoice Number ")]
+        [DisplayName("Invoice Number")]
         public string InvoiceNo { get; set; }
 
         public List<Document> Documents { get; set; } = new List<Document>();
