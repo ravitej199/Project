@@ -1,0 +1,219 @@
+﻿@model Project.Models.TruckGoodsModel
+
+@{
+    ViewData["Title"] = "Security Operator Form";
+}
+
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Security Operator Input Form</h2>
+
+    <form asp-action="Create" id="truckGoodsForm" asp-controller="GateOperatorDashboard" enctype="multipart/form-data" method="post" class="needs-validation" novalidate>
+        <div class="row">
+            <!-- Vehicle Number -->
+            <div class="col-md-6 mb-3">
+                <label for="VehicleNo" class="form-label">Vehicle Number</label>
+                <input type="text" class="form-control" id="VehicleNo" name="VehicleNo" placeholder="Enter Vehicle Number" required>
+                <div class="invalid-feedback">Vehicle Number is required.</div>
+            </div>
+
+            <!-- Units -->
+            <div class="col-md-6 mb-3">
+                <label for="Unit" class="form-label">Units</label>
+                <select class="form-select" id="Unit" name="Unit" required>
+                    <option value="" selected disabled>Choose Unit</option>
+                    <option value="Cans">Cans</option>
+                    <option value="Drums">Drums</option>
+                    <option value="Bottles">Bottles</option>
+                </select>
+                <div class="invalid-feedback">Please select a unit.</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Quantity -->
+            <div class="col-md-6 mb-3">
+                <label for="Quantity" class="form-label">Quantity</label>
+                <input type="number" class="form-control" id="Quantity" name="Quantity" placeholder="Enter Quantity" required>
+                <div class="invalid-feedback">Quantity is required.</div>
+            </div>
+
+            <!-- Invoice Number -->
+            <div class="col-md-6 mb-3">
+                <label for="InvoiceNo" class="form-label">Invoice Number</label>
+                <input type="text" class="form-control" id="InvoiceNo" name="InvoiceNo" placeholder="Enter Invoice Number" required>
+                <div class="invalid-feedback">Invoice Number is required.</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Amount -->
+            <div class="col-md-6 mb-3">
+                <label for="Amount" class="form-label">Amount</label>
+                <input type="number" class="form-control" id="Amount" name="Amount" placeholder="Enter Amount" required>
+                <div class="invalid-feedback">Amount is required.</div>
+            </div>
+
+            <!-- Supplier Name -->
+            <div class="col-md-6 mb-3">
+                <label for="SupplierName" class="form-label">Supplier Name</label>
+                <input type="text" class="form-control" id="SupplierName" name="SupplierName" placeholder="Enter Supplier Name" required>
+                <div class="invalid-feedback">Supplier Name is required.</div>
+            </div>
+        </div>
+
+        <div class="row">
+            <!-- Supplier Location -->
+            <div class="col-md-4 mb-3">
+                <label for="SupplierLocation" class="form-label">Supplier Location</label>
+                <input type="text" class="form-control" id="SupplierLocation" name="SupplierLocation" placeholder="Enter Supplier Location" required>
+                <div class="invalid-feedback">Supplier Location is required.</div>
+            </div>
+
+            <!-- Inward Type -->
+            <div class="col-md-4 mb-3">
+                <label for="Type" class="form-label">Inward Type</label>
+                <select class="form-select" id="Type" name="Type" required>
+                    <option value="" selected disabled>Choose Inward Type</option>
+                    <option value="Domestic">Domestic</option>
+                    <option value="International">International</option>
+                </select>
+                <div class="invalid-feedback">Please select an inward type.</div>
+            </div>
+        </div>
+
+
+        <div class="row">
+
+
+            <!-- Remarks -->
+            <div class="col-md-6 mb-3">
+                <label for="Remarks" class="form-label">Remarks</label>
+                <textarea class="form-control" id="Remarks" name="Remarks" rows="3" placeholder="Enter Remarks"></textarea>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <!-- Description of Goods -->
+            <label for="Description" class="form-label">Description of Goods</label>
+            <textarea class="form-control" id="Description" name="Description" rows="3" placeholder="Enter Description of Goods" required></textarea>
+            <div class="invalid-feedback">Description is required.</div>
+        </div>
+
+        <div id="documentSection">
+            <h3>Add Documents</h3>
+            <div class="document-group row">
+                <div class="col-md-3">
+                    <label for="DocType">Document Type</label>
+                    <input type="text" name="documents[0].DocType" class="form-control" placeholder="Enter Document Type">
+                </div>
+                <div class="col-md-3">
+                    <label for="DocNum">Document Number</label>
+                    <input type="text" name="documents[0].DocNum" class="form-control" placeholder="Enter Document Number">
+                </div>
+                <div class="col-md-3">
+                    <label for="Documents[0].DocumentFile">Document Upload</label>
+                    <input type="file" name="Documents[0].DocumentFile" class="form-control">
+                </div>
+            </div>
+        </div>
+
+        <button type="button" id="addMoreDocuments" class="btn btn-primary mt-3">Add More Documents</button>
+
+        <div class="form-group mt-3 row-cols-6">
+            <button id="submit" type="submit" class="btn btn-success">Generate QR Code</button>
+            
+        </div>
+    </form>
+</div>
+
+<script>
+    // JavaScript for Bootstrap form validation
+    (function () {
+        'use strict'
+
+        // Fetch all the forms we want to apply custom Bootstrap validation styles to
+        var forms = document.querySelectorAll('.needs-validation')
+
+        // Loop over them and prevent submission if invalid
+        Array.prototype.slice.call(forms).forEach(function (form) {
+            form.addEventListener('submit', function (event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault()
+                    event.stopPropagation()
+                }
+                form.classList.add('was-validated')
+            }, false)
+        })
+    })()
+
+
+
+    let documentCount = 1; // Track the number of document groups
+
+    // Function to handle adding more documents
+    document.getElementById('addMoreDocuments').addEventListener('click', function () {
+        const documentSection = document.getElementById('documentSection');
+
+        const newDocumentGroup = document.createElement('div');
+        newDocumentGroup.classList.add('document-group', 'row');
+        newDocumentGroup.setAttribute('id', 'document-group-' + documentCount);
+        newDocumentGroup.innerHTML = `
+        <div class="col-md-3">
+          <label for="docType">Document Type</label>
+          <input type="text" name="documents[${documentCount}].docType" class="form-control" placeholder="Enter Document Type">
+        </div>
+        <div class="col-md-3">
+          <label for="docNum">Document Number</label>
+          <input type="text" name="documents[${documentCount}].docNum" class="form-control" placeholder="Enter Document Number">
+        </div>
+        <div class="col-md-3">
+          <label for="docFile">Document Upload</label>
+          <input type="file" name="documents[${documentCount}].docFile" class="form-control">
+        </div>
+        <div class="col-md-3">
+          <button type="button" class="btn btn-danger mt-4" onClick="removeSection(${documentCount})">Remove</button>
+        </div>
+      `;
+
+        documentSection.appendChild(newDocumentGroup);
+        documentCount++; // Increment document count
+    });
+
+    // Function to remove a document group
+    function removeSection(divCount) {
+        const divToRemove = document.getElementById('document-group-' + divCount);
+        if (divToRemove) {
+            divToRemove.remove();
+        }
+    }
+
+    document.getElementById('truckGoodsForm').addEventListener('submit', function () {
+        setTimeout(function () {
+            document.getElementById('truckGoodsForm').reset(); 
+        }, 1000);
+        // const btn =  document.getElementById('submit');
+        // btn.disabled = true;
+        // const qrbtn = document.getElementById('qr');
+        // qrbtn.classList.remove('visually-hidden');
+
+
+
+    });
+    document.getElementById('Type').addEventListener('change', function () {
+        const button = document.getElementById('submit');
+        if (this.value === 'International') {
+            button.textContent = 'Proceed for Customs Inspection';
+        } else {
+            button.textContent = 'Generate QR Code';  // Default text for Domestic or other options
+        }
+    });
+
+    window.onload = function () {
+        var successMessage = '@TempData["SuccessMessage"]';
+        if (successMessage) {
+            var toastElement = new bootstrap.Toast(document.getElementById('toastMessage'));
+            toastElement.show();
+        }
+    };
+
+</script>

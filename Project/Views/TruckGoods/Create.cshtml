@@ -1,0 +1,27 @@
+﻿@model Project.Models.TruckGoodsModel
+
+<h2>Create Truck Goods Entry</h2>
+
+<form asp-action="Create">
+
+
+
+
+    <h3>Documents</h3>
+    <div id="documents-section">
+        <div class="form-group">
+            <label asp-for="Documents[0].DocumentName" class="control-label"></label>
+            <input asp-for="Documents[0].DocumentName" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Documents[0].DocType" class="control-label"></label>
+            <input asp-for="Documents[0].DocType" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label asp-for="Documents[0].DocNum" class="control-label"></label>
+            <input asp-for="Documents[0].DocNum" class="form-control" />
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
