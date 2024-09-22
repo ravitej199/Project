@@ -14,64 +14,91 @@ namespace Project.Services
         }
         public async Task<IEnumerable<TruckGoodsModel>> GetInternationalGoodsAsync()
         {
-            return await _truckGoodsRepository.GetInternationalGoodsAsync();
+            try
+            {
+                return await _truckGoodsRepository.GetInternationalGoodsAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Failed to retrieve international goods.", ex);
+            }
         }
 
         public async Task ApproveGood(int id)
         {
+
             var truckGoods = await _truckGoodsRepository.GetByIdAsync(id);
-            if (truckGoods != null && truckGoods.Type == "International")
+            if (truckGoods == null)
             {
-                truckGoods.IsCustomsApproved = true;
-                await _truckGoodsRepository.SaveAsync();
+                throw new ArgumentNullException(nameof(truckGoods), "Truck goods not found.");
             }
-          
+
+            if (truckGoods.Type != "International")
+            {
+                throw new InvalidOperationException("Only international goods can be approved.");
+            }
+
+            truckGoods.IsCustomsApproved = true;
+            await _truckGoodsRepository.SaveAsync();
+
         }
 
 
 
         public async Task RejectGood(int id)
         {
+            var truckGoods = await _truckGoodsRepository.GetByIdAsync(id);
+            if (truckGoods == null)
+            {
+                throw new ArgumentNullException(nameof(truckGoods), "Truck goods not found.");
+            }
             await _truckGoodsRepository.DeleteAsync(id);
         }
 
 
         public async Task CreateTruckGoodsAsync(TruckGoodsModel truckGoodsModel)
         {
-            if (truckGoodsModel.Documents != null && truckGoodsModel.Documents.Count > 0)
+            try
             {
-                foreach (var document in truckGoodsModel.Documents)
+                if (truckGoodsModel.Documents != null && truckGoodsModel.Documents.Count > 0)
                 {
-                    if (document.DocumentFile != null && document.DocumentFile.Length > 0)
+                    foreach (var document in truckGoodsModel.Documents)
                     {
-                        var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
-                        if (!Directory.Exists(uploadsFolder))
+                        if (document.DocumentFile != null && document.DocumentFile.Length > 0)
                         {
-                            Directory.CreateDirectory(uploadsFolder);
+                            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot/uploads");
+                            if (!Directory.Exists(uploadsFolder))
+                            {
+                                Directory.CreateDirectory(uploadsFolder);
+                            }
+
+                            var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(document.DocumentFile.FileName);
+                            var filePath = Path.Combine(uploadsFolder, uniqueFileName);
+
+                            using (var stream = new FileStream(filePath, FileMode.Create))
+                            {
+                                await document.DocumentFile.CopyToAsync(stream);
+                            }
+
+                            document.DocumentPath = "/uploads/" + uniqueFileName;
                         }
-
-                        var uniqueFileName = Guid.NewGuid().ToString() + "_" + Path.GetFileName(document.DocumentFile.FileName);
-                        var filePath = Path.Combine(uploadsFolder, uniqueFileName);
-
-                        using (var stream = new FileStream(filePath, FileMode.Create))
-                        {
-                            await document.DocumentFile.CopyToAsync(stream);
-                        }
-
-                        document.DocumentPath = "/uploads/" + uniqueFileName;
                     }
                 }
-            }
 
-            if (truckGoodsModel.Type == "Domestic")
+                if (truckGoodsModel.Type == "Domestic")
+                {
+                    truckGoodsModel.IsCustomsApproved = true;
+                }
+
+                truckGoodsModel.ArrivalTime = DateTime.Now;
+
+                await _truckGoodsRepository.AddAsync(truckGoodsModel);
+                await _truckGoodsRepository.SaveAsync();
+            }
+            catch (Exception ex)
             {
-                truckGoodsModel.IsCustomsApproved = true;
+                throw new ApplicationException("Failed to create TruckGoods.", ex);
             }
-
-            truckGoodsModel.ArrivalTime = DateTime.Now;
-
-            await _truckGoodsRepository.AddAsync(truckGoodsModel);
-            await _truckGoodsRepository.SaveAsync();
         }
     }
 }

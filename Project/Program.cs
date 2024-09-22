@@ -4,8 +4,12 @@ using Project.Data;
 using Project.Repository.IRepository;
 using Project.Repository;
 using Project.Services;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("Logs/log.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
 
 builder.Services.AddControllersWithViews();
 
@@ -17,12 +21,15 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.SignIn.RequireConfirmedAccount = false;
 })
 
+
+
 .AddEntityFrameworkStores<ApplicationDbContext>()
 .AddDefaultTokenProviders();
 
 builder.Logging.AddConsole();
 builder.Services.AddScoped<ITruckGoodsRepository, TruckGoodsRepository>();
 builder.Services.AddScoped<TruckGoodsService>();
+builder.Host.UseSerilog();
 var app = builder.Build();
 
 if (!app.Environment.IsDevelopment())

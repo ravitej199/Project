@@ -40,7 +40,9 @@ namespace Project.Controllers
         }
 
         public async Task<IActionResult> ApproveGoods(int id)
-        { try{
+        {
+       
+            try{
             await _truckGoodsService.ApproveGood(id);
                 return RedirectToAction("Index");
             }
