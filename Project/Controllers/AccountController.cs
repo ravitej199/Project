@@ -36,7 +36,7 @@ namespace Project.Controllers
 
                         var role = await _userManager.GetRolesAsync(user);
                         if (role.Contains("SecurityOperator")){
-                            return RedirectToAction("Create", "GateOperatorDashboard");
+                            return RedirectToAction("Dashboard", "GateOperatorDashboard");
                         }
                         else if (role.Contains("CustomsOfficer"))
                         {

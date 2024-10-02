@@ -7,7 +7,7 @@ namespace Project.Repository.IRepository
         Task<TruckGoodsModel> GetByIdAsync(int id);
         Task AddAsync(TruckGoodsModel truckGoods);
         Task SaveAsync();
-
+        Task<IEnumerable<TruckGoodsModel>> GetDaysGoodsAsync();
         Task DeleteAsync(int id);
     }
 }

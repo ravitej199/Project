@@ -5,6 +5,7 @@ using Project.Repository.IRepository;
 using Project.Repository;
 using Project.Services;
 using Serilog;
+using Microsoft.AspNetCore.Builder;
 
 var builder = WebApplication.CreateBuilder(args);
 Log.Logger = new LoggerConfiguration()
@@ -29,8 +30,10 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 builder.Logging.AddConsole();
 builder.Services.AddScoped<ITruckGoodsRepository, TruckGoodsRepository>();
 builder.Services.AddScoped<TruckGoodsService>();
+builder.Services.AddScoped<QRServices>();
 builder.Host.UseSerilog();
 var app = builder.Build();
+
 
 if (!app.Environment.IsDevelopment())
 {

@@ -15,7 +15,6 @@ namespace Project.Data
         {
         }
 
-        // Add DbSets for your models
         public DbSet<TruckGoodsModel> TruckGoods { get; set; }
         public DbSet<Document> Documents { get; set; }
 
@@ -24,7 +23,6 @@ namespace Project.Data
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure one-to-many relationship between TruckGoodsModel and Document
             modelBuilder.Entity<TruckGoodsModel>()
                 .HasMany(t => t.Documents)
                 .WithOne(d => d.TruckGoods)

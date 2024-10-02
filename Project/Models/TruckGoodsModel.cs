@@ -27,8 +27,13 @@ namespace Project.Models
       
         public DateTime ArrivalTime { get; set; }
 
+        //[Required]
+        //public bool IsCustomsApproved { get; set; }
+
+
         [Required]
-        public bool IsCustomsApproved { get; set; }
+
+        public ApprovalStatus ApprovalStatus { get; set; }
 
         [Required(ErrorMessage = "Please provide the Supplier Name ")]
         [DisplayName("Supplier Name")]
@@ -51,7 +56,15 @@ namespace Project.Models
         [DisplayName("Invoice Number")]
         public string InvoiceNo { get; set; }
 
-        public List<Document> Documents { get; set; } = new List<Document>();
+        public ICollection<Document> Documents { get; set; } = new List<Document>();
+    }
+
+    public enum ApprovalStatus
+    {
+        Saved,
+        Approved,
+        Pending_Approval,
+        Rejected
     }
 
 

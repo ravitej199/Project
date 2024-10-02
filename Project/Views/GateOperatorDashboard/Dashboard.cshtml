@@ -1,0 +1,113 @@
+﻿@model List<Project.Models.TruckGoodsModel>
+
+@{
+    ViewData["Title"] = "Truck Arrivals";
+}
+
+
+
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-3">
+        <div class="row align-items-center">
+            <div class="col-10">
+                <h2 class="text-white py-2">Truck Arrivals</h2>
+            </div>
+            <div class="col-2 text-end">
+                <a asp-controller="GateOperatorDashboard" style="background-color: #6f42c1; transition: background-color 0.3s ease;" onmouseover="this.style.backgroundColor='#5a32a3';" onmouseout="this.style.backgroundColor='#6f42c1';" asp-action="Create" class="btn btn-primary"> Add New</a>
+            
+            </div>
+        </div>
+    </div>
+
+
+    <div class="card-body p-4">
+        <div class="row pb-3">
+
+            <table class="table table-bordered table-striped">
+                <thead>
+                    <tr>
+                        <th>
+                            Date and Time
+                        </th>
+                        <th>
+                            Supplier Name
+                        </th>
+                        <th>
+                            Supplier Location
+                        </th>
+                        <th>
+                            Status
+                        </th>
+                        <th>
+                            Action
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var obj in Model)
+                    {
+                        <tr>
+                            <td>@obj.ArrivalTime</td>
+                            <td>@obj.SupplierName</td>
+                            <td>@obj.SupplierLocation</td>
+                            <td>
+                                @if (obj.ApprovalStatus == ApprovalStatus.Approved)
+                                {
+                                    <div class="w-75 align-content-center" role="group">
+                                        <p>Approved</p>
+                                    </div>
+                                }
+                                else if (obj.ApprovalStatus == ApprovalStatus.Pending_Approval)
+                                {
+                                    <div class="w-75 align-content-center" role="group">
+                                        <p>Pending Approval</p>
+                                    </div>
+                                }
+                                else if (obj.ApprovalStatus == ApprovalStatus.Rejected)
+                                {
+                                    <div class="w-75 align-content-center" role="group">
+                                        <p>Rejected</p>
+                                    </div>
+                                }
+                                else
+                                {
+                                    <div class="w-75 align-content-center" role="group">
+                                        <p>Saved</p>
+                                    </div>
+                                }
+                            </td>
+                            <td>
+                                <a asp-controller="GateOperatorDashboard" style="" asp-action="Details" asp-route-invoiceNo="@obj.SerialNo" class="btn btn-primary">View Details</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    document.querySelectorAll('.reject-btn').forEach(button => {
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            const row = this.closest('tr');
+            const url = this.href;
+
+
+            fetch(url, {
+                method: 'POST'
+            }).then(response => {
+                if (response.ok) {
+                    row.remove();
+                }
+            });
+        });
+    });
+
+</script>

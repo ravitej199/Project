@@ -38,7 +38,7 @@ namespace Project.Services
                 throw new InvalidOperationException("Only international goods can be approved.");
             }
 
-            truckGoods.IsCustomsApproved = true;
+            truckGoods.ApprovalStatus = ApprovalStatus.Approved;
             await _truckGoodsRepository.SaveAsync();
 
         }
@@ -52,7 +52,8 @@ namespace Project.Services
             {
                 throw new ArgumentNullException(nameof(truckGoods), "Truck goods not found.");
             }
-            await _truckGoodsRepository.DeleteAsync(id);
+            truckGoods.ApprovalStatus = ApprovalStatus.Rejected;
+            await _truckGoodsRepository.SaveAsync();
         }
 
 
@@ -87,7 +88,7 @@ namespace Project.Services
 
                 if (truckGoodsModel.Type == "Domestic")
                 {
-                    truckGoodsModel.IsCustomsApproved = true;
+                    truckGoodsModel.ApprovalStatus = ApprovalStatus.Approved;
                 }
 
                 truckGoodsModel.ArrivalTime = DateTime.Now;
@@ -99,6 +100,32 @@ namespace Project.Services
             {
                 throw new ApplicationException("Failed to create TruckGoods.", ex);
             }
+        }
+
+        public async Task<IEnumerable<TruckGoodsModel>> GetDaysGoodsAsync()
+        {
+            try
+            {
+                return await _truckGoodsRepository.GetDaysGoodsAsync();
+            }
+            catch (Exception ex)
+            {
+                throw new ApplicationException("Failed to retrieve international goods.", ex);
+            }
+        }
+
+        internal async Task<TruckGoodsModel> GetDetails(int invoiceNo)
+        {
+            try
+            {
+                var truckGoods = await _truckGoodsRepository.GetByIdAsync(invoiceNo);
+                return truckGoods;
+            }
+            catch(Exception ex)
+            {
+                throw new ApplicationException("Failed to retrieve goods details.", ex);
+            }
+    
         }
     }
 }

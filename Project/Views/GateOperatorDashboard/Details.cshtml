@@ -1,13 +1,13 @@
 ﻿@model Project.Models.TruckGoodsModel
 
 @{
-    ViewData["Title"] = "Security Operator Form";
+    ViewData["Title"] = "Order Details Form";
 }
 
 <div class="container mt-5">
-    <h2 class="text-center mb-4">Security Operator Input Form</h2>
+    <h2 class="text-center mb-4">Order Details</h2>
     <form asp-action="Create" id="truckGoodsForm" asp-controller="GateOperatorDashboard" enctype="multipart/form-data" method="post" class="needs-validation">
-        
+
         <div class="row">
             <div class="col-md-6 mb-3">
                 <label asp-for="VehicleNo"></label>
@@ -17,7 +17,7 @@
 
             <div class="col-md-6 mb-3">
                 <label asp-for="Unit" class="form-label"></label>
-                <select class="form-select" id="Unit" name="Unit"  asp-for="Unit" required>
+                <select class="form-select" id="Unit" name="Unit" asp-for="Unit" required>
                     <option value="" selected disabled>Choose Unit</option>
                     <option value="Cans">Cans</option>
                     <option value="Drums">Drums</option>
@@ -90,96 +90,106 @@
         </div>
 
         <div id="documentSection">
-            <h3>Add Documents</h3>
-            <div class="document-group row">
-                <div class="col-md-3">
-                    <label for="DocType">Document Type</label>
-                    <input type="text" name="documents[0].DocType" class="form-control" placeholder="Enter Document Type">
+            <h3>Documents</h3>
+
+            @if(Model.Documents.Count > 0)
+            {
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Document Name</th>
+                            <th>Type</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var doc in Model.Documents)
+                        {
+                            <tr>
+                                <td>@doc.DocNum</td>
+                                <td>@doc.DocType</td>
+                                <td>
+                                    <a href="@Url.Content(doc.DocumentPath)" download class="btn btn-primary">Download</a>
+
+
+
+
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            }
+            else
+            {
+                <div class="mb-4">
+                    No Documents Found
+
                 </div>
-                <div class="col-md-3">
-                    <label for="DocNum">Document Number</label>
-                    <input type="text" name="documents[0].DocNum" class="form-control" placeholder="Enter Document Number">
-                </div>
-                <div class="col-md-3">
-                    <label for="Documents[0].DocumentFile">Document Upload</label>
-                    <input type="file" name="Documents[0].DocumentFile" class="form-control">
-                </div>
-            </div>
+            }
+         
         </div>
-
-        <button type="button" id="addMoreDocuments" class="btn btn-primary mt-3">Add More Documents</button>
-
-        <div class="form-group mt-3 d-flex gap-2">
-            <button id="submit1" type="submit" class="btn btn-success">Save</button>
-            <button id="submit2" type="submit" hidden class="btn btn-success">Generate QR Code</button>
-        </div>
-
     </form>
+    @if (Model.ApprovalStatus == ApprovalStatus.Approved)
+    {
+        <div class="form-group mt-3 mb-3 row-cols-10">
+            <a asp-controller="QR" asp-action="Generate" asp-route-content="@Model.SerialNo.ToString()" id="QRbtn" class="btn btn-success">Generate QR Code</a>
+        </div>
+
+        <div id="qrCodeDisplay" style="display:none;">
+            <h3>QR Code:</h3>
+            <img id="qrCodeImage" src="" alt="QR Code">
+        </div>
+    }
+
+    
+  
 </div>
 
 <script>
 
+    document.querySelector('#QRbtn').addEventListener('click', function (event) {
+    event.preventDefault();
+    var url = this.href;
 
-    let documentCount = 1; 
-    document.getElementById('addMoreDocuments').addEventListener('click', function () {
-        const documentSection = document.getElementById('documentSection');
+        fetch(url)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('qrCodeDisplay').style.display = 'block';
+                document.getElementById('qrCodeImage').src = 'data:image/png;base64,' + data.qrCodeBase64;
+                var successMessage = '@TempData["SuccessMessage"]';
+                    if (successMessage) {
+                        var toastElement = new bootstrap.Toast(document.getElementById('toastMessage'));
+                        toastElement.show();
+                    }
+            })
+        .catch(error => console.error('Error:', error));
+});
 
-        const newDocumentGroup = document.createElement('div');
-        newDocumentGroup.classList.add('document-group', 'row');
-        newDocumentGroup.setAttribute('id', 'document-group-' + documentCount);
-        newDocumentGroup.innerHTML = `
-        <div class="col-md-3">
-          <label for="docType">Document Type</label>
-          <input type="text" name="documents[${documentCount}].docType" class="form-control" placeholder="Enter Document Type">
-        </div>
-        <div class="col-md-3">
-          <label for="docNum">Document Number</label>
-          <input type="text" name="documents[${documentCount}].docNum" class="form-control" placeholder="Enter Document Number">
-        </div>
-        <div class="col-md-3">
-          <label for="docFile">Document Upload</label>
-          <input type="file" name="documents[${documentCount}].docFile" class="form-control">
-        </div>
-        <div class="col-md-3">
-          <button type="button" class="btn btn-danger mt-4" onClick="removeSection(${documentCount})">Remove</button>
-        </div>
-      `;
-
-        documentSection.appendChild(newDocumentGroup);
-        documentCount++; 
-    });
-
-
-    function removeSection(divCount) {
-        const divToRemove = document.getElementById('document-group-' + divCount);
-        if (divToRemove) {
-            divToRemove.remove();
-        }
-    }
 
 
     document.getElementById('Type').addEventListener('change', function () {
-        const button = document.getElementById('submit2');
+        const button = document.getElementById('submit');
         if (this.value === 'International') {
-            button.hidden = true;
+            button.textContent = 'Proceed for Customs Inspection';
         } else {
-            button.hidden = false;
+            button.textContent = 'Generate QR Code';
         }
     });
 
-    window.onload = function () {
-        var successMessage = '@TempData["SuccessMessage"]';
-        if (successMessage) {
-            var toastElement = new bootstrap.Toast(document.getElementById('toastMessage'));
-            toastElement.show();
-        }
-        document.getElementById('truckGoodsForm').reset();
-    };
+    // window.onload = function () {
+    //     var successMessage = '@TempData["SuccessMessage"]';
+    //     if (successMessage) {
+    //         var toastElement = new bootstrap.Toast(document.getElementById('toastMessage'));
+    //         toastElement.show();
+    //     }
+    //     document.getElementById('truckGoodsForm').reset();
+    // };
 
 </script>
 @section Scripts {
     @{
-        <partial name="_ValidationScriptsPartial" />
+            <partial name="_ValidationScriptsPartial" />
     }
 
 

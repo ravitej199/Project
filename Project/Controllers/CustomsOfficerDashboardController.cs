@@ -73,5 +73,23 @@ namespace Project.Controllers
                 return RedirectToAction("Error", "Home");
             }
         }
+
+        public async Task<IActionResult> Details(int invoiceNo)
+        {
+
+            try
+            {
+
+                var daysGoods = await _truckGoodsService.GetDetails(invoiceNo);
+                return View(daysGoods);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error fetching Todays goods data");
+
+                TempData["ErrorMessage"] = "An error occurred while fetching the data.";
+                return RedirectToAction("Error", "Home");
+            }
+        }
     }
 }
